@@ -1,42 +1,3 @@
-//package com.example.study.repository;
-//
-//import com.example.study.model.entity.User;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-//import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-//
-//import java.time.LocalDateTime;
-//
-//@DataJpaTest                                                                    // JPA 테스트 관련 컴포넌트만 Import
-//@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)    // 실제 db 사용
-//@DisplayName("UserRepositoryTest 테스트")
-//public class UserRepositoryTest{
-//    // 스프링의 디자인 패턴 : 싱글톤 패턴 => UserRepository는 하나만 생성해서, AUTOwired라는 곳에서 함께 쓴다 => DI
-//
-//    // Dependency Injection(DI) : 의존성의 주입 => 직접 객체를 만들지 않고 객체들을 스프링이 관리, 스프링이 의존성 주입
-//    @Autowired  // DI 주입 => 객체 만들지 않고 객체 찾아 주입
-//    private UserRepository userRepository;
-//
-//    @Test // test하는 곳이라는 뜻
-//    public void create(){
-//        //과거 및 다른 프레임워크 create 사용법
-//        // String sql = inser into user(%s, %s, %d) value (account, email, age); // 쿼리문 가지고 값 매칭
-//
-//        //현재 spring create 사용 => jpa로 객체 관리
-//        User user = new User();
-////        user.setId(); // auto-incremental이므로 지정해주지 않아도, 자동으로 넣어서 순차적으로 증가
-//        user.setAccount("TestUser01");
-//        user.setEmail("TestUser01@gmail.com");
-//        user.setPhoneNumber("010-1111-1111");
-//        user.setCreatedAt(LocalDateTime.now());
-//        user.setCreatedBy("admin");
-//
-//        User newUser = userRepository.save(user); // user을 리턴시켜 db에 저장된 새로운 객체 튀어나옴
-//        System.out.println("newUser : " + newUser);
-//    }
-
 package com.example.study.repository;
 
 import com.example.study.model.entity.Item;
@@ -55,29 +16,36 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-//@SpringBootTest : 처음부터 끝까지 테스트 가능(springboottest 나 바로 아래 test 하나 선택하여 하시오~
+//@SpringBootTest : 처음부터 끝까지 테스트 가능(springboottest 나 바로 아래 test 하나 선택
 @DataJpaTest // 자동으로 transaction 소환 => 미적용 원할시: @Transactional(propagation = Propagation.NOT_SUPPORTED) //  JPA 테스트 관련 컴포넌트만 Import
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)    // 실제 db 사용
 @DisplayName("UserRepositoryTest 테스트") // 테스트 이름
 public class UserRepositoryTest {
-
-    // Dependency Injection (DI)
-    @Autowired
+/*
+     스프링의 디자인 패턴 : 싱글톤 패턴 => UserRepository는 하나만 생성해서, Autowired 변수에서 함께 쓴다 => DI
+     Dependency Injection(DI) : 의존성의 주입 => 직접 객체를 만들지 않고 객체들을 스프링이 관리, 스프링이 의존성 주입
+*/
+    @Autowired // DI 주입 => 객체 만들지 않고 객체 찾아 주입
     private UserRepository userRepository;
 
-    @Test
+    @Test // test하는 곳
 //    @Rollback(false) : 롤백 거절
     @Transactional(propagation = Propagation.NOT_SUPPORTED) // : @DataJpaTest적용시, 자동 롤백 거절
     public void create(){
-        // String sql = insert into user (%s, %s , %d ) value (account, email, age);
+
+        /* 과거 및 다른 프레임워크 create 사용법 */
+//       String sql = insert into user(%s, %s, %d) value (account, email, age); // 쿼리문 가지고 값 매칭
+
+        /* 현재 spring create 사용 => jpa로 객체 관리 */
         User user = new User();
+//        user.setId(1L); // auto-incremental이므로 지정해주지 않아도, 자동으로 넣어서 순차적으로 증가
         user.setAccount("TestUser02");
         user.setEmail("TestUser02@gmail.com");
         user.setPhoneNumber("010-1111-1111");
         user.setCreatedAt(LocalDateTime.now());
         user.setCreatedBy("TestUser2");
 
-        User newUser = userRepository.save(user);
+        User newUser = userRepository.save(user); // user을 리턴시켜 db에 저장된 새로운 객체 대입
         System.out.println("newUser : "+newUser);
 
     }
@@ -128,7 +96,7 @@ public class UserRepositoryTest {
     }
 
     @Test
-//    @Transactional // jpatest는 기본값으로 롤백 작동
+//    @Transactional // Jpatest는 기본값으로 롤백 작동
 //    @DeleteMapping("/api/user")
     @Transactional(propagation = Propagation.NOT_SUPPORTED) // 롤백 기본값 거절
     public void delete(){
@@ -142,12 +110,13 @@ public class UserRepositoryTest {
         });
 
         Optional<User> deleteUser = userRepository.findById(1L);
-       /* // 1) 삭제 확인
+       /* 1) 삭제 확인
         if(deleteUser.isPresent()){
             System.out.println("데이터 존재: " + deleteUser.get());
         }else{
             System.out.println("데이터 삭제: 데이터 없음");
         }*/
+
         // 2) 삭제 확인
         assertFalse(deleteUser.isPresent()); // 반드시 false 이어야함.
     }
